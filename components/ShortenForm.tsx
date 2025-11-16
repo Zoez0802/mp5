@@ -18,7 +18,6 @@ export default function ShortenForm() {
             setOrigin(window.location.origin);
         }
     }, []);
-
     return (
         <form
             className="w-full rounded-2xl p-5 bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm"
@@ -36,7 +35,13 @@ export default function ShortenForm() {
                     .catch((err) => {
                         console.error(err);
                         if (err instanceof Error) {
-                            setError(err.message);
+                            // If user choose a taken alias, Next hides the real server error and gives a long generic message.
+                            // When that happens, I want to show a message that tells user what happened instead.
+                            if (err.message.includes("Server Components render")) {
+                                setError("That alias is already taken :(");
+                            } else {
+                                setError(err.message);
+                            }
                         } else {
                             setError("Something went wrong :(");
                         }
@@ -70,7 +75,7 @@ export default function ShortenForm() {
                 </div>
             </div>
 
-            <FormHelperText className="text-slate-500"> {/* slate for softer modern gray */}
+            <FormHelperText className="text-slate-500"> {/* slate for softer color */}
                 Enter the long URL and pick an alias you can remember.
             </FormHelperText>
 
@@ -90,6 +95,7 @@ export default function ShortenForm() {
                     Shorten
                 </Button>
             </div>
+
 
 
             {shortUrl && (
