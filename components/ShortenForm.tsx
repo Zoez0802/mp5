@@ -91,14 +91,6 @@ export default function ShortenForm() {
                 </Button>
             </div>
 
-            <div className="mt-4">
-                <p className="text-xs text-slate-600 mb-1">Custom Alias</p>
-                <div className="flex items-center gap-1">
-          <span className="text-xs text-slate-600 font-mono">
-            {origin ? `${origin}/` : "/"}
-          </span>
-                </div>
-            </div>
 
             {shortUrl && (
                 <div className="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-3">
