@@ -1,23 +1,16 @@
 import getUrlByAlias from "@/lib/getUrlByAlias";
 import { redirect } from "next/navigation";
 
-export default async function RedirectPage({
-                                               params,
-                                           }: {
+export default async function RedirectPage(props: {
     params: Promise<{ alias: string }>;
 }) {
-    const { alias } = await params;
+    const { alias } = await props.params;
 
-    try {
-        const targetUrl = await getUrlByAlias(alias);
+    const targetUrl = await getUrlByAlias(alias);
 
-        if (targetUrl === null) {
-            return redirect("/");
-        }
-
-        return redirect(targetUrl);
-    } catch (err) {
-        console.error(err);
-        return redirect("/");
+    if (!targetUrl) {
+        redirect("/");   // alias not found
     }
+
+    redirect(targetUrl);  // go to the long URL
 }

@@ -30,5 +30,5 @@ export default async function createShortUrl(
         throw new Error("DB insert failed");
     }
 
-    return doc;
+    return { alias, url };
 }

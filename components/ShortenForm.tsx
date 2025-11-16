@@ -2,28 +2,39 @@
 import createShortUrl from "@/lib/createShortUrl";
 import { ShortUrlDoc } from "@/types";
 import { Button, FormHelperText, TextField } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const BASE_URL = "https://cs391-url-shortener.vercel.app";
+
 
 export default function ShortenForm() {
     const [url, setUrl] = useState("");
     const [alias, setAlias] = useState("");
     const [shortUrl, setShortUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [origin, setOrigin] = useState(""); // this is for the base url display, when on vercel it shows the url for vercel
 
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setOrigin(window.location.origin);
+        }
+    }, []);
 
     return (
         <form
             className="w-full rounded-2xl p-5 bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm"
-            onSubmit={async (event) => {
+            onSubmit={(event) => {
                 event.preventDefault();
                 setShortUrl(null); // reset previous result each submit
                 setError(null);    // reset previous error for the same reason
 
                 createShortUrl(url, alias)
-                    .then((doc: ShortUrlDoc) => {setShortUrl(`${BASE_URL}/${doc.alias}`);})
-                    .catch((err) => {console.error(err);
+                    .then((doc: ShortUrlDoc) => {
+                        // use the current origin (localhost in dev, Vercel in prod)
+                        const base = origin || (typeof window !== "undefined" ? window.location.origin : "");
+                        setShortUrl(`${base}/${doc.alias}`);
+                    })
+                    .catch((err) => {
+                        console.error(err);
                         if (err instanceof Error) {
                             setError(err.message);
                         } else {
@@ -35,7 +46,9 @@ export default function ShortenForm() {
             <TextField
                 variant="filled"
                 sx={{
-                    backgroundColor: "white", width: "100%",}}
+                    backgroundColor: "white",
+                    width: "100%",
+                }}
                 label="Long URL"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
@@ -44,12 +57,12 @@ export default function ShortenForm() {
             <div className="mt-4">
                 <p className="text-xs text-slate-600 mb-1">Custom Alias</p>
                 <div className="flex items-center gap-1">
-                    <span className="text-xs text-slate-600 font-mono">
-                        {BASE_URL}/
-                    </span>
+                <span className="text-xs text-slate-600 font-mono">
+                    {origin ? `${origin}/` : "/"}
+                </span>
                     <TextField
                         variant="filled"
-                        sx={{backgroundColor: "white"}}
+                        sx={{ backgroundColor: "white" }}
                         placeholder="my-alias"
                         value={alias}
                         onChange={(e) => setAlias(e.target.value)}
@@ -78,20 +91,29 @@ export default function ShortenForm() {
                 </Button>
             </div>
 
+            <div className="mt-4">
+                <p className="text-xs text-slate-600 mb-1">Custom Alias</p>
+                <div className="flex items-center gap-1">
+          <span className="text-xs text-slate-600 font-mono">
+            {origin ? `${origin}/` : "/"}
+          </span>
+                </div>
+            </div>
+
             {shortUrl && (
                 <div className="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-3">
-                    {/* show the resulting link */}
                     <p className="text-sm text-slate-700 mb-1">Your short URL:</p>
-
-                    <p className="font-mono break-all flex-1 text-slate-700">
+                    {/*make the link clickable*/}
+                    <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="font-mono break-all flex-1 text-slate-700 underline">
                         {shortUrl}
-                    </p>
+                    </a>
 
                     <p className="text-xs text-slate-500 mt-1">
-                        Select the link above to copy.
+                        Click the link above or copy it into your browser.
                     </p>
                 </div>
             )}
+
         </form>
     );
 }

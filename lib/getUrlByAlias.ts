@@ -1,10 +1,15 @@
+"use server";
+
 import getCollection, { URLS_COLLECTION } from "@/db";
+import { ShortUrlDoc } from "@/types";
 
 export default async function getUrlByAlias(
-    shortcut: string,
+    alias: string,
 ): Promise<string | null> {
     const urlsCollection = await getCollection(URLS_COLLECTION);
-    const data = await urlsCollection.findOne({ shortcut });
+
+    // look up by alias
+    const data = (await urlsCollection.findOne({ alias })) as ShortUrlDoc | null;
 
     if (data === null) {
         return null;
