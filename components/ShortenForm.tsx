@@ -13,6 +13,9 @@ export default function ShortenForm() {
     const [error, setError] = useState<string | null>(null);
     const [origin, setOrigin] = useState(""); // this is for the base url display, when on vercel it shows the url for vercel
 
+    // i want it to be more dynamic so i used web api (asked in piazza, allowed)
+    // `window.location.origin` is part of the Web API (the Location interface).
+    // It returns the origin of the current page
     useEffect(() => {
         if (typeof window !== "undefined") {
             setOrigin(window.location.origin);
@@ -29,8 +32,9 @@ export default function ShortenForm() {
                 createShortUrl(url, alias)
                     .then((doc: ShortUrlDoc) => {
                         // use the current origin (localhost in dev, Vercel in prod)
-                        const base = origin || (typeof window !== "undefined" ? window.location.origin : "");
-                        setShortUrl(`${base}/${doc.alias}`);
+                        // i want it to be more dynamic so i used web api (asked in piazza, allowed)
+                        const Short = origin !== "" ? `${origin}/${doc.alias}` : `/${doc.alias}`;
+                        setShortUrl(Short);
                     })
                     .catch((err) => {
                         console.error(err);
